@@ -361,7 +361,7 @@ void SHOTDescriptor::describe(mesh_t& data, int feat_index, shot& desc) const
 
          double inclination = std::acos( inclinationCos  );
 
-         assert(inclination >= 0.0 && inclination <= pi);
+         assert(inclination >= 0.0 && inclination <= M_PI);
 
          if ( inclination > DEG_90_TO_RAD || (areEquals(inclination,DEG_90_TO_RAD) && zInFeatRef <= 0))
          {

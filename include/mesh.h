@@ -5,6 +5,9 @@
 #include <list>
 #include <cstddef>
 
+// NOTE: We need this
+#define USE_FLANN 1
+
 #ifdef USE_FLANN
 #include <flann/flann.hpp>
 #endif

@@ -3,8 +3,11 @@
 
 #include "mesh.h"
 #include <string>
+#include <ostream>
+#include <stdexcept>
 
-class invalid_mesh_descriptor : public std::logic_error {
+class invalid_mesh_descriptor : public std::logic_error
+{
 public:
    explicit invalid_mesh_descriptor() : std::logic_error("Exception invalid_mesh_descriptor caught.") {}
    invalid_mesh_descriptor(const std::string& msg) : std::logic_error("Exception invalid_mesh_descriptor caught: "+msg) {}
@@ -120,7 +123,9 @@ public:
    friend std::ostream& operator<<(std::ostream& s, const vec_descriptor& d)
    {
       s << d(0);
-      for (size_t k=1; k < d.size(); ++k) s << " " << d(k);
+      for (size_t k=1; k < d.size(); ++k) {
+          s << " " << d(k);
+      }
       return s;
    }
 };
