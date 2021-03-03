@@ -1,0 +1,25 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
+PROJECT(shot VERSION 0.1.0)
+
+SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+SET(CMAKE_BUILD_TYPE Debug )
+
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/include )
+LINK_DIRECTORIES( ${PROJECT_SOURCE_DIR}/lib)
+
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src)
+
+# Python binders
+# ADD_SUBDIRECTORY(pybind11)
+# SET(BINDERS_FILES
+#         src/shot.cpp
+#         src/binder.cpp
+#         src/randutil.cpp
+#         src/utils.cpp
+#         src/MeshPointsIndex.cpp)
+#
+# pybind11_add_module(pyshot MODULE ${BINDERS_FILES})
