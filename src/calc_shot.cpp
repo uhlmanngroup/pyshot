@@ -1,9 +1,3 @@
-/*
- * Emanuele Rodola
- * TU Munich, 23/09/2014
- * <rodola@in.tum.de>
- */
- 
 #include <math.h>
 #include <vector>
 #include "shot_descriptor.h"
@@ -14,17 +8,16 @@
 int main(int argc, char ** argv) {
 	// Create mesh structure
 
-//	mesh_t mesh;
-//	{
-//	    int nv = 20;
-//		std::vector< vec3d<double> > V(nv);
-//
-//        vec3d<double> b1();//0.0, 0.0, 0.0);
+	mesh_t mesh;
+    int nv = 1;
+    std::vector< vec3d<double> > V(nv);
+
+        vec3d<double>* b1 = new vec3d<double> (0.0, 0.0, 0.0);
 //        vec3d<double> b2();//0.0, 1.0, 0.0);
 //        vec3d<double> b3();//0.0, 0.0, 1.0);
 //        vec3d<double> b4();//1.0, 0.0, 0.0);
 //
-//        V.push_back(b1);
+        V.push_back(*b1);
 //        V.push_back(b2);
 //        V.push_back(b3);
 //        V.push_back(b4);
@@ -34,7 +27,6 @@ int main(int argc, char ** argv) {
 //        mesh.add_triangle(0, 2, 3);
 //        mesh.add_triangle(0, 1, 3);
 //        mesh.add_triangle(1, 2, 3);
-//	}
 
 //	mesh.calc_normals();
 //
