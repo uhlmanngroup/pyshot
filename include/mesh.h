@@ -5,7 +5,7 @@
 #include <list>
 #include <cstddef>
 
-// NOTE: We need this
+// NOTE: We need FLANN to quickly find neighbors
 #define USE_FLANN 1
 
 #ifdef USE_FLANN
@@ -294,7 +294,7 @@ public:
 
 		if (ns.front() != p)
 		{
-			std::cout << "[WARNING] mesh_t::nearest_neighbors_with_dist(): The first neighbor should be the query itself (point " << p << ")." << std::endl;
+			// std::cout << "[WARNING] mesh_t::nearest_neighbors_with_dist(): The first neighbor should be the query itself (point " << p << ")." << std::endl;
 			neighs = ns;
 			dists = ds;
 		}

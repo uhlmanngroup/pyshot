@@ -23,42 +23,34 @@ inline bool areEquals(double val1, double val2, double zeroDoubleEps = 1e-6)
 }
 
 void SHOTDescriptor::getSHOTLocalRF(
-      mesh_t& data, int p, double radius,  vec3d<double> & X,  vec3d<double> & Y,  vec3d<double> & Z) const
+      mesh_t& data,
+      int p,
+      double radius,
+      vec3d<double> & X,
+      vec3d<double> & Y,
+      vec3d<double> & Z
+      ) const
 {
-   vector<int> neighs; vector<double> dists;
+   vector<int> neighs;
+   vector<double> dists;
    data.nearest_neighbors_with_dist(p, radius, neighs, dists);
+
    getSHOTLocalRF(data, p, neighs, dists, radius, X, Y, Z);
 }
 
-/**
- * "Unique Signatures of Histograms for Local Surface Description",
- * F.Tombari, S.Salti, and L.Di Stefano. ECCV 2010
- *
- * @param data
- * @param p
- * @param pts
- * @param dists
- * @param radius
- * @param X
- * @param Y
- * @param Z
- * @throw std::logic_error
- */
 void SHOTDescriptor::getSHOTLocalRF(
-
       mesh_t& data,
       int p,
       const vector<int>& pts,
       const vector<double>& dists,
       double radius,
-       vec3d<double> & X,
-       vec3d<double> & Y,
-       vec3d<double> & Z
-
-) const {
+      vec3d<double> & X,
+      vec3d<double> & Y,
+      vec3d<double> & Z
+      ) const {
 
    const int np = pts.size();
-   const  vec3d<double> & pt = data.get_vertex(p);
+   const vec3d<double> & pt = data.get_vertex(p);
 
    // Weighted covariance matrix
 
@@ -74,34 +66,32 @@ void SHOTDescriptor::getSHOTLocalRF(
    {
       const double w = radius - dists[i];
       const  vec3d<double>  q = data.get_vertex(pts[i]) - pt;
+      // std::cout << "q = " << std::endl;
+      // std::cout << q.x << " " << q.y << " "  << q.z << " " << std::endl;
 
 	  M(0,0) += w * q.x * q.x;
-      //M[0] += w * q.x * q.x;
-	  
+
 	  M(1,1) += w * q.y * q.y;
-      //M[4] += w * q.y * q.y;
-	  
+
 	  M(2,2) += w * q.z * q.z;
-      //M[8] += w * q.z * q.z;
 
       double tmp = w * q.x * q.y;
 	  M(0,1) += tmp; M(1,0) += tmp;
-      //M[1] += tmp; M[3] += tmp;
 
       tmp = w * q.x * q.z;
 	  M(0,2) += tmp; M(2,0) += tmp;
-      //M[2] += tmp; M[6] += tmp;
 
       tmp = w * q.y * q.z;
 	  M(1,2) += tmp; M(2,1) += tmp;
-      //M[5] += tmp; M[7] += tmp;
 
       sumw += w;
    }
    M(0,0) /= sumw; M(0,1) /= sumw; M(0,2) /= sumw;
    M(1,0) /= sumw; M(1,1) /= sumw; M(1,2) /= sumw;
    M(2,0) /= sumw; M(2,1) /= sumw; M(2,2) /= sumw;
-   //for (int i=0; i<9; ++i) M[i] /= sumw;
+
+   // std::cout << "M = " << std::endl;
+   // std::cout << M << std::endl;
 
    // Eigenvalue decomposition
    
@@ -109,13 +99,7 @@ void SHOTDescriptor::getSHOTLocalRF(
    Eigen::VectorXd eval = solver.eigenvalues();  // sorted in increasing order
    Eigen::Matrix3d evec = solver.eigenvectors(); // eigenvectors are normalized and stored as columns
    
-   //std::cout << "The eigenvalues of A are:" << std::endl << solver.eigenvalues() << std::endl;
-
-   //double evec[9], eval[3];
-   //if ( dgeev_driver(3, M, evec, eval) != 3 )
-   //   std::cout << "[WARNING] (" << p << ") Less than 3 eigenvalues" << std::endl;
-
-   //std::cout << eval[0] << " " << eval[1] << " " << eval[2] << std::endl;
+   // std::cout << "The eigenvalues of A are:" << std::endl << eval << std::endl;
 
    // Sign disambiguation
 
@@ -155,14 +139,12 @@ void SHOTDescriptor::getSHOTLocalRF(
 
    X.x = evec(0,x); X.y = evec(1,x); X.z = evec(2,x);
    Z.x = evec(0,z); Z.y = evec(1,z); Z.z = evec(2,z);
-   //X.x = evec[3*x + 0]; X.y = evec[3*x + 1]; X.z = evec[3*x + 2];
-   //Z.x = evec[3*z + 0]; Z.y = evec[3*z + 1]; Z.z = evec[3*z + 2];
-   
-	//std::cout << "norms: " << X.x*X.x + X.y*X.y + X.z*X.z << " " << Z.x*Z.x + Z.y*Z.y + Z.z*Z.z << ", ";
-	//std::cout << "inner: " << X.x*Z.x + X.y*Z.y + X.z*Z.z << std::endl;
 
-   //normalize(X);
-   //normalize(Z);
+   // std::cout << "norms: " << X.x*X.x + X.y*X.y + X.z*X.z << " " << Z.x*Z.x + Z.y*Z.y + Z.z*Z.z << ", ";
+   // std::cout << "inner: " << X.x*Z.x + X.y*Z.y + X.z*Z.z << std::endl;
+
+   // normalize(X);
+   // normalize(Z);
 
    for (int i=0; i<np; ++i)
    {
@@ -173,8 +155,6 @@ void SHOTDescriptor::getSHOTLocalRF(
 
    if (posx < np - posx) X = -X;
    if (posz < np - posz) Z = -Z;
-
-   // get y
 
    Y = cross_product(Z, X);
 }
@@ -187,7 +167,7 @@ void SHOTDescriptor::describe(mesh_t& data, int feat_index, shot& desc) const
    desc.radius = m_params.radius;
 
    desc.resize(m_descLength, 0);
-    vec3d<double>  ref_X, ref_Y, ref_Z;
+   vec3d<double>  ref_X, ref_Y, ref_Z;
 
    double sq_radius = m_params.radius*m_params.radius;
    double sqradius4 = sq_radius / 4;
@@ -212,7 +192,7 @@ void SHOTDescriptor::describe(mesh_t& data, int feat_index, shot& desc) const
       try {
          getSHOTLocalRF(data, feat_index, neighs, dists, m_params.localRFradius, ref_X, ref_Y, ref_Z);
       } catch (const std::exception& e) {
-         //std::cout << "[WARNING] (" << feat_index << ") " << e.what() << std::endl;
+         std::cout << "[WARNING] (" << feat_index << ") " << e.what() << std::endl;
          return;
       }
    }
@@ -221,14 +201,14 @@ void SHOTDescriptor::describe(mesh_t& data, int feat_index, shot& desc) const
       try {
          getSHOTLocalRF(data, feat_index, m_params.localRFradius, ref_X, ref_Y, ref_Z);
       } catch (const std::exception& e) {
-         //std::cout << "[WARNING] (" << feat_index << ") " << e.what() << std::endl;
+         std::cout << "[WARNING] (" << feat_index << ") " << e.what() << std::endl;
          return;
       }
       data.nearest_neighbors_with_dist(feat_index, m_params.radius, neighs, dists);
    }
 
    const int n_neighs = neighs.size();
-   //std::cout << n_neighs << " neighbors" << std::endl;
+   // std::cout << n_neighs << " neighbors" << std::endl;
 
    if (n_neighs < m_params.minNeighbors)
    {
@@ -240,12 +220,12 @@ void SHOTDescriptor::describe(mesh_t& data, int feat_index, shot& desc) const
 
    for (int j=0; j<n_neighs; ++j)
    {
-      const  vec3d<double>  q = data.get_vertex(neighs[j]) - centralPoint;
+      const vec3d<double>  q = data.get_vertex(neighs[j]) - centralPoint;
 
       const double distance = q.x*q.x + q.y*q.y + q.z*q.z;
 	  const double sqrtSqDistance = std::sqrt(distance);
 
-      //Note: this should not happen since the reference point is assumed not to be in neighs
+      // Note: this should not happen since the reference point is assumed not to be in neighs
       if (areEquals(distance, 0.0))
          continue;
 
@@ -353,7 +333,7 @@ void SHOTDescriptor::describe(mesh_t& data, int feat_index, shot& desc) const
             }
          }
 
-         //Interpolation on the inclination (adjacent vertical volumes)
+         // Interpolation on the inclination (adjacent vertical volumes)
 
          double inclinationCos = zInFeatRef / sqrtSqDistance;
          if (inclinationCos < -1.0) inclinationCos = -1.0;
@@ -389,7 +369,6 @@ void SHOTDescriptor::describe(mesh_t& data, int feat_index, shot& desc) const
             }
          }
 
-         //}
 
          if (yInFeatRef != 0.0 || xInFeatRef != 0.0)
          {
