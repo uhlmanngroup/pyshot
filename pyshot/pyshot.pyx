@@ -20,8 +20,8 @@ cdef extern from "include/shot_descriptor.h":
                    bool use_normalization,
     )
 
-cpdef get_descriptors(vertices,
-                      faces,
+cpdef get_descriptors(np.ndarray[double, ndim=2] vertices,
+                      np.ndarray[int, ndim=2] faces,
                       double radius,
                       double local_rf_radius,
                       int min_neighbors = 3,
