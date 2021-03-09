@@ -180,8 +180,6 @@ void SHOTDescriptor::describe(mesh_t &data, int feat_index, shot &desc) const {
   desc.resize(m_descLength, 0);
   vec3d<double> ref_X, ref_Y, ref_Z;
 
-  double sq_radius = m_params.radius * m_params.radius;
-  double sqradius4 = sq_radius / 4;
   double radius3_4 = (m_params.radius * 3) / 4;
   double radius1_4 = m_params.radius / 4;
   double radius1_2 = m_params.radius / 2;
