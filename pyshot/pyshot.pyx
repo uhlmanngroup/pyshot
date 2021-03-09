@@ -22,7 +22,7 @@ cdef extern from "include/shot_descriptor.h":
 
 cpdef get_descriptors(
         np.ndarray[double, ndim=2] vertices,
-        np.ndarray[int, ndim=2] faces,
+        np.ndarray[long, ndim=2] faces,
         double radius,
         double local_rf_radius,
         int min_neighbors = 3,
