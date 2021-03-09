@@ -9,8 +9,8 @@ from libcpp cimport bool
 cdef extern from "include/shot_descriptor.h":
 
     vector[vector[double]]  calc_shot(
-                   vector[vector[double]] vertices,
-                   vector[vector[int]] faces,
+                   const vector[vector[double]] vertices,
+                   const vector[vector[int]] faces,
                    double radius,
                    double localRFradius,
                    int minNeighbors,

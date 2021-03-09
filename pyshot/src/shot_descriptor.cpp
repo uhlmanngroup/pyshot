@@ -459,8 +459,8 @@ void SHOTDescriptor::describe(mesh_t &data, int feat_index, shot &desc) const {
 } // namespace unibo
 
 std::vector<std::vector<double > >  calc_shot(
-               std::vector<std::vector<double> > vertices,
-               std::vector<std::vector<int> > faces,
+               const std::vector<std::vector<double> >& vertices,
+               const std::vector<std::vector<int> >& faces,
                double radius,
                double localRFradius,
                int minNeighbors,
