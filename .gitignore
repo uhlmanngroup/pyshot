@@ -1,3 +1,5 @@
+.pyshot.cpp
+
 .idea
 lib
 build
@@ -44,7 +46,7 @@ build
 **/CMakeScripts
 **/compile_commands.json
 
-pyshot/include/divisible/*
+include/divisible/*
 
 
 ## Local
