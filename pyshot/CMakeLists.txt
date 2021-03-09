@@ -1,5 +1,7 @@
 FIND_PACKAGE (Eigen3 3.3 REQUIRED NO_MODULE)
-
+IF(Eigen3)
+    MESSAGE(STATUS "Found: ${Eigen3::Eigen}")
+ENDIF()
 # Since flann 1.8.5, LZ4 is vendored. Building against this version fails.
 # This explicitly states to use the system's version of LZ4 instead.
 # See: https://github.com/mariusmuja/flann/issues/384#issuecomment-668782051
