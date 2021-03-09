@@ -14,7 +14,9 @@ interface.
  - Install the project using the source
 ```bash
 git clone <this repo url>
-# manage your virtual env here (no need for conda)
+cd pyshot
+# Manage your virtual env here.
+# You can use, but don't need a conda env.
 pip install .
 ```
 
@@ -60,7 +62,9 @@ See [`example_pyshot.py`](./example_pyshot.py).
  - Install the project using the source in [editable mode](https://packaging.python.org/guides/distributing-packages-using-setuptools/#working-in-development-mode)
 ```bash
 git clone <this repo url>
-# manage your virtual env here (no need for conda)
+cd pyshot
+# Manage your virtual env here.
+# You can use, but don't need a conda env.
 pip install --editable . -v
 ```
 
