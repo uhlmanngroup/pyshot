@@ -18,9 +18,9 @@ if __name__ == "__main__":
     parser.add_argument("--local_rf_radius", type=float, default=None)
     parser.add_argument("--min_neighbors", type=int, default=4)
     parser.add_argument("--n_bins", type=int, default=20)
-    parser.add_argument("--double_volumes", type=bool, action='store_true')
-    parser.add_argument("--use_interpolation", type=bool, action='store_true')
-    parser.add_argument("--use_normalization", type=bool, action='store_true')
+    parser.add_argument("--double_volumes", action='store_true')
+    parser.add_argument("--use_interpolation", action='store_true')
+    parser.add_argument("--use_normalization", action='store_true')
 
     args = parser.parse_args()
 
@@ -43,5 +43,5 @@ if __name__ == "__main__":
                                          )
 
     plt.imshow(shot_descrs.T)
-    plt.title(f"SHOT descriptors of {os.path.basename(args.mesh_file)}")
+    plt.title(f"SHOT descriptors of {os.path.basename(args.mesh_file)} (transposed)")
     plt.show()
