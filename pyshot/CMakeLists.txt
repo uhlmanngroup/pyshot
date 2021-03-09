@@ -12,14 +12,3 @@ INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/include )
 LINK_DIRECTORIES( ${PROJECT_SOURCE_DIR}/lib)
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src)
-
-# Python binders
-# ADD_SUBDIRECTORY(pybind11)
-# SET(BINDERS_FILES
-#         src/shot.cpp
-#         src/binder.cpp
-#         src/randutil.cpp
-#         src/utils.cpp
-#         src/MeshPointsIndex.cpp)
-#
-# pybind11_add_module(pyshot MODULE ${BINDERS_FILES})
