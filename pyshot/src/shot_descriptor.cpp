@@ -459,3 +459,50 @@ void SHOTDescriptor::describe(mesh_t &data, int feat_index, shot &desc) const {
 }
 
 } // namespace unibo
+
+std::vector<std::vector<double > >  calc_shot(
+               std::vector<std::vector<double> > vertices,
+               std::vector<std::vector<int> > faces,
+               double radius,
+               double localRFradius,
+               int minNeighbors,
+               int bins
+)
+{
+  mesh_t mesh;
+  int nv = vertices.size();
+  int nf = faces.size();
+
+  std::vector<vec3d<double>> V(nv);
+
+  for (int i = 0; i < nv; i++) {
+    vec3d<double> b(vertices[i][0], vertices[i][1], vertices[i][2]);
+    V[i] = b;
+  }
+  mesh.put_vertices(V);
+  for (int i = 0; i < nf; i++) {
+    mesh.add_triangle(faces[i][0], faces[i][1], faces[i][2]);
+  }
+
+  mesh.calc_normals();
+
+  unibo::SHOTParams params;
+  params.radius = radius;
+  params.localRFradius = localRFradius;
+  params.minNeighbors = minNeighbors;
+  params.bins = bins;
+
+  unibo::SHOTDescriptor sd(params);
+  const size_t sz = sd.getDescriptorLength();
+
+  std::vector<std::vector<double > > descriptors(nv, std::vector<double>(sz));
+
+  for (int i = 0; i < nv; i++) {
+    unibo::shot s;
+    sd.describe(mesh, i, s);
+    for (size_t j=0; j < sz; j++) {
+        descriptors[i][j] = (double) s(j);
+    }
+  }
+  return descriptors;
+}

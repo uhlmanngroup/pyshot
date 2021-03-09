@@ -44,7 +44,7 @@ build
 **/CMakeScripts
 **/compile_commands.json
 
-include/divisible/*
+pyshot/include/divisible/*
 
 
 ## Local

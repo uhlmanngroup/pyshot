@@ -5,6 +5,8 @@
 #include <ostream>
 #include <stdexcept>
 #include <string>
+#include <math.h>
+#include <vector>
 
 class invalid_mesh_descriptor : public std::logic_error {
 public:
@@ -193,5 +195,13 @@ private:
 };
 
 } // namespace unibo
+
+std::vector<std::vector<double > >  calc_shot(
+               std::vector<std::vector<double> > vertices,
+               std::vector<std::vector<int> > faces,
+               double radius,
+               double localRFradius,
+               int minNeighbors,
+               int bins);
 
 #endif // SHOT_DESCRIPTOR_H
