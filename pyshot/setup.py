@@ -17,6 +17,7 @@ extensions = [
               extra_compile_args=["-O3"],
               extra_link_args=['-L/usr/include/'],
               language="c++",
+              define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
 )
 ]
 
