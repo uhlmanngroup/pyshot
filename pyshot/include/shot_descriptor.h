@@ -202,6 +202,10 @@ std::vector<std::vector<double > >  calc_shot(
                double radius,
                double localRFradius,
                int minNeighbors,
-               int bins);
+               int bins,
+               bool doubleVolumes=true,
+               bool useInterpolation=true,
+               bool useNormalization=true
+);
 
 #endif // SHOT_DESCRIPTOR_H

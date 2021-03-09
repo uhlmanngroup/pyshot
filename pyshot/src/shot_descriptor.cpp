@@ -466,7 +466,10 @@ std::vector<std::vector<double > >  calc_shot(
                double radius,
                double localRFradius,
                int minNeighbors,
-               int bins
+               int bins,
+               bool doubleVolumes,
+               bool useInterpolation,
+               bool useNormalization
 )
 {
   mesh_t mesh;
@@ -491,6 +494,10 @@ std::vector<std::vector<double > >  calc_shot(
   params.localRFradius = localRFradius;
   params.minNeighbors = minNeighbors;
   params.bins = bins;
+
+  params.doubleVolumes = doubleVolumes;
+  params.useInterpolation = useInterpolation;
+  params.useNormalization = useNormalization;
 
   unibo::SHOTDescriptor sd(params);
   const size_t sz = sd.getDescriptorLength();
