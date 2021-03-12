@@ -151,24 +151,23 @@ const {
   desc.resize(getDescriptorLength(), 0);
   vec3d<double> ref_X, ref_Y, ref_Z;
 
-  double radius3_4 = (m_radius * 3) / 4;
-  double radius1_4 = m_radius / 4;
-  double radius1_2 = m_radius / 2;
+  const double radius3_4 = (m_radius * 3) / 4;
+  const double radius1_4 = m_radius / 4;
+  const double radius1_2 = m_radius / 2;
 
   int desc_index, step_index;
 
-  int maxAngularSectors = 12;
-  if (m_doubleVolumes)
-    maxAngularSectors = 28;
+  const int maxAngularSectors = m_doubleVolumes? 28: 12;
 
   vector<int> neighs;
   vector<double> dists;
 
   const vec3d<double> &centralPoint = data.get_vertex(feat_index);
 
+  // Getting the local reference frame (ref_X, ref_Y, ref_Z)
+  // and neighbours and their squared distances
   if (areEquals(m_localRFradius, m_radius)) {
-    data.nearest_neighbors_with_dist(feat_index, m_radius, neighs,
-                                     dists);
+    data.nearest_neighbors_with_dist(feat_index, m_radius, neighs, dists);
 
     try {
       getSHOTLocalRF(data, feat_index, neighs, dists, m_localRFradius,
@@ -185,8 +184,7 @@ const {
       std::cout << "[WARNING] (" << feat_index << ") " << e.what() << std::endl;
       return;
     }
-    data.nearest_neighbors_with_dist(feat_index, m_radius, neighs,
-                                     dists);
+    data.nearest_neighbors_with_dist(feat_index, m_radius, neighs, dists);
   }
 
   const int n_neighs = neighs.size();
@@ -272,7 +270,10 @@ const {
 
     const double weight = 1.0;
 
-    if (m_useInterpolation) {
+    if (!m_useInterpolation) {
+      desc(volume_index + step_index) += weight;
+    }
+    else {
       // Interpolation on the cosine (adjacent bins in the histogram)
       binDistance -= step_index;
       double intWeight = (1 - std::abs(binDistance));
@@ -407,8 +408,7 @@ const {
       assert(volume_index + step_index >= 0 &&
              volume_index + step_index < m_descLength);
       desc(volume_index + step_index) += weight * intWeight;
-    } else
-      desc(volume_index + step_index) += weight;
+    }
 
     assert(volume_index >= 0 && volume_index < getDescriptorLength());
 
