@@ -143,51 +143,48 @@ public:
   float radius;
 };
 
-struct SHOTParams {
-  // Radius of the sphere that defines the local neighborhood
-  float radius;
-
-  // Radius of the support for the estimation of the local RF
-  float localRFradius;
-
-  // Quantization bins for the cosine
-  int bins;
-  int minNeighbors;
-
-  bool doubleVolumes;
-  bool useInterpolation;
-  bool useNormalization;
-
-  SHOTParams():
-    radius(15),
-    localRFradius(radius),
-    bins(10),
-    minNeighbors(10),
-    doubleVolumes(true),
-    useInterpolation(true),
-    useNormalization(true)
-  {}
-};
-
 class SHOTComputer {
 public:
-  explicit SHOTComputer(const SHOTParams &params) : m_params(params) {
-    if (m_params.doubleVolumes)
-      m_k = 32;
-    else
-      m_k = 16;
-    m_descLength = m_k * (m_params.bins + 1);
-  }
+  explicit SHOTComputer(
+    float radius = 15,
+    float localRFradius = 15,
+    float bins = 10,
+    int minNeighbors = 10,
+    double doubleVolumes=true,
+    double useInterpolation=true,
+    double useNormalization=true
+  ):
+    m_radius(radius),
+    m_localRFradius(radius),
+    m_bins(bins),
+    m_minNeighbors(minNeighbors),
+    m_doubleVolumes(doubleVolumes),
+    m_useInterpolation(useInterpolation),
+    m_useNormalization(useNormalization),
+    m_onion_husks(doubleVolumes? 32: 16)
+  {}
 
   void describe(mesh_t &data, int feat_index, SHOTDescriptor &desc) const;
 
-  int getDescriptorLength() const { return m_descLength; }
+  inline int getDescriptorLength() const { return m_onion_husks * (m_bins + 1); }
 
 private:
-  SHOTParams m_params;
-  // number of onion husks
-  int m_k;
-  int m_descLength;
+  // Radius of the sphere that defines the local neighborhood
+  const float m_radius;
+
+  // Radius of the support for the estimation of the local RF
+  const float m_localRFradius;
+
+  // Quantization bins for the cosine
+  const int m_bins;
+  const int m_minNeighbors;
+
+  const bool m_doubleVolumes;
+  const bool m_useInterpolation;
+  const bool m_useNormalization;
+
+  // Number of onion husks
+  const int m_onion_husks;
 
 /**
  * Compute the local reference frame (RF) for a given point.

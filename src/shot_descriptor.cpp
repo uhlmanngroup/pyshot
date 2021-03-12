@@ -146,19 +146,19 @@ void SHOTComputer::describe(
     int feat_index,
     SHOTDescriptor &desc)
 const {
-  desc.radius = m_params.radius;
+  desc.radius = m_radius;
 
-  desc.resize(m_descLength, 0);
+  desc.resize(getDescriptorLength(), 0);
   vec3d<double> ref_X, ref_Y, ref_Z;
 
-  double radius3_4 = (m_params.radius * 3) / 4;
-  double radius1_4 = m_params.radius / 4;
-  double radius1_2 = m_params.radius / 2;
+  double radius3_4 = (m_radius * 3) / 4;
+  double radius1_4 = m_radius / 4;
+  double radius1_2 = m_radius / 2;
 
   int desc_index, step_index;
 
   int maxAngularSectors = 12;
-  if (m_params.doubleVolumes)
+  if (m_doubleVolumes)
     maxAngularSectors = 28;
 
   vector<int> neighs;
@@ -166,12 +166,12 @@ const {
 
   const vec3d<double> &centralPoint = data.get_vertex(feat_index);
 
-  if (areEquals(m_params.localRFradius, m_params.radius)) {
-    data.nearest_neighbors_with_dist(feat_index, m_params.radius, neighs,
+  if (areEquals(m_localRFradius, m_radius)) {
+    data.nearest_neighbors_with_dist(feat_index, m_radius, neighs,
                                      dists);
 
     try {
-      getSHOTLocalRF(data, feat_index, neighs, dists, m_params.localRFradius,
+      getSHOTLocalRF(data, feat_index, neighs, dists, m_localRFradius,
                      ref_X, ref_Y, ref_Z);
     } catch (const std::exception &e) {
       std::cout << "[WARNING] (" << feat_index << ") " << e.what() << std::endl;
@@ -179,21 +179,21 @@ const {
     }
   } else {
     try {
-      getSHOTLocalRF(data, feat_index, m_params.localRFradius, ref_X, ref_Y,
+      getSHOTLocalRF(data, feat_index, m_localRFradius, ref_X, ref_Y,
                      ref_Z);
     } catch (const std::exception &e) {
       std::cout << "[WARNING] (" << feat_index << ") " << e.what() << std::endl;
       return;
     }
-    data.nearest_neighbors_with_dist(feat_index, m_params.radius, neighs,
+    data.nearest_neighbors_with_dist(feat_index, m_radius, neighs,
                                      dists);
   }
 
   const int n_neighs = neighs.size();
 
-  if (n_neighs < m_params.minNeighbors) {
+  if (n_neighs < m_minNeighbors) {
     std::cout << "[WARNING] Neighborhood has less than "
-              << m_params.minNeighbors << " vertices. "
+              << m_minNeighbors << " vertices. "
               << "Aborting description of feature point " << feat_index
               << std::endl;
     return;
@@ -239,7 +239,7 @@ const {
 
     desc_index = (bit4 << 3) + (bit3 << 2);
 
-    if (m_params.doubleVolumes) {
+    if (m_doubleVolumes) {
       desc_index = desc_index << 1;
 
       if ((xInFeatRef * yInFeatRef > 0) || (xInFeatRef == 0.0))
@@ -252,7 +252,7 @@ const {
 
     // 2 RADII
     // desc_index += (distance > sqradius4) ? 2 : 0;
-    desc_index += (sqrtSqDistance > m_params.radius / 2.) ? 2 : 0;
+    desc_index += (sqrtSqDistance > m_radius / 2.) ? 2 : 0;
 
     /* Bits:
              0: positive (=1) or negative (=0) elevation
@@ -263,26 +263,26 @@ const {
 
        */
 
-    double binDistance = ((1.0 + cosineDesc) * m_params.bins) / 2;
+    double binDistance = ((1.0 + cosineDesc) * m_bins) / 2;
 
     step_index = binDistance < 0.0
                      ? ceil(binDistance - 0.5)
                      : floor(binDistance + 0.5); // round(binDistance)
-    const int volume_index = desc_index * (m_params.bins + 1);
+    const int volume_index = desc_index * (m_bins + 1);
 
     const double weight = 1.0;
 
-    if (m_params.useInterpolation) {
+    if (m_useInterpolation) {
       // Interpolation on the cosine (adjacent bins in the histogram)
       binDistance -= step_index;
       double intWeight = (1 - std::abs(binDistance));
 
       if (binDistance > 0)
-        desc(volume_index + ((step_index + 1) % m_params.bins)) +=
+        desc(volume_index + ((step_index + 1) % m_bins)) +=
             binDistance * weight;
       else
-        desc(volume_index + ((step_index - 1 + m_params.bins) %
-                             m_params.bins)) += -binDistance * weight;
+        desc(volume_index + ((step_index - 1 + m_bins) %
+                             m_bins)) += -binDistance * weight;
 
       // Interpolation on the distance (adjacent husks)
 
@@ -294,7 +294,7 @@ const {
           intWeight += 1 - radiusDistance;
         else {
           intWeight += 1 + radiusDistance;
-          const int idx = (desc_index - 2) * (m_params.bins + 1) + step_index;
+          const int idx = (desc_index - 2) * (m_bins + 1) + step_index;
           try {
             desc.at(idx) += weight * (-radiusDistance);
           } catch (std::exception &e) {
@@ -311,7 +311,7 @@ const {
           intWeight += 1 + radiusDistance;
         else {
           intWeight += 1 - radiusDistance;
-          desc.at((desc_index + 2) * (m_params.bins + 1) + step_index) +=
+          desc.at((desc_index + 2) * (m_bins + 1) + step_index) +=
               weight * radiusDistance;
         }
       }
@@ -336,10 +336,10 @@ const {
           intWeight += 1 - inclinationDistance;
         else {
           intWeight += 1 + inclinationDistance;
-          assert((desc_index + 1) * (m_params.bins + 1) + step_index >= 0 &&
-                 (desc_index + 1) * (m_params.bins + 1) + step_index <
+          assert((desc_index + 1) * (m_bins + 1) + step_index >= 0 &&
+                 (desc_index + 1) * (m_bins + 1) + step_index <
                      m_descLength);
-          desc((desc_index + 1) * (m_params.bins + 1) + step_index) +=
+          desc((desc_index + 1) * (m_bins + 1) + step_index) +=
               weight * (-inclinationDistance);
         }
 
@@ -350,10 +350,10 @@ const {
           intWeight += 1 + inclinationDistance;
         else {
           intWeight += 1 - inclinationDistance;
-          assert((desc_index - 1) * (m_params.bins + 1) + step_index >= 0 &&
-                 (desc_index - 1) * (m_params.bins + 1) + step_index <
+          assert((desc_index - 1) * (m_bins + 1) + step_index >= 0 &&
+                 (desc_index - 1) * (m_bins + 1) + step_index <
                      m_descLength);
-          desc((desc_index - 1) * (m_params.bins + 1) + step_index) +=
+          desc((desc_index - 1) * (m_bins + 1) + step_index) +=
               weight * inclinationDistance;
         }
       }
@@ -371,9 +371,9 @@ const {
 
         const int sel = desc_index >> 2;
         const double angularSectorSpan =
-            (m_params.doubleVolumes) ? DEG_45_TO_RAD : DEG_90_TO_RAD;
+            (m_doubleVolumes) ? DEG_45_TO_RAD : DEG_90_TO_RAD;
         const double angularSectorStart =
-            (m_params.doubleVolumes) ? -DEG_168_TO_RAD : -DEG_135_TO_RAD;
+            (m_doubleVolumes) ? -DEG_168_TO_RAD : -DEG_135_TO_RAD;
 
         double azimuthDistance =
             (azimuth - (angularSectorStart + angularSectorSpan * sel)) /
@@ -387,19 +387,19 @@ const {
         if (azimuthDistance > 0) {
           intWeight += 1 - azimuthDistance;
           int interp_index = (desc_index + 4) % maxAngularSectors;
-          assert(interp_index * (m_params.bins + 1) + step_index >= 0 &&
-                 interp_index * (m_params.bins + 1) + step_index <
+          assert(interp_index * (m_bins + 1) + step_index >= 0 &&
+                 interp_index * (m_bins + 1) + step_index <
                      m_descLength);
-          desc(interp_index * (m_params.bins + 1) + step_index) +=
+          desc(interp_index * (m_bins + 1) + step_index) +=
               weight * azimuthDistance;
         } else {
           int interp_index =
               (desc_index - 4 + maxAngularSectors) % maxAngularSectors;
-          assert(interp_index * (m_params.bins + 1) + step_index >= 0 &&
-                 interp_index * (m_params.bins + 1) + step_index <
+          assert(interp_index * (m_bins + 1) + step_index >= 0 &&
+                 interp_index * (m_bins + 1) + step_index <
                      m_descLength);
           intWeight += 1 + azimuthDistance;
-          desc(interp_index * (m_params.bins + 1) + step_index) +=
+          desc(interp_index * (m_bins + 1) + step_index) +=
               weight * (-azimuthDistance);
         }
       }
@@ -410,18 +410,18 @@ const {
     } else
       desc(volume_index + step_index) += weight;
 
-    assert(volume_index >= 0 && volume_index < (m_params.bins + 1) * m_k);
+    assert(volume_index >= 0 && volume_index < getDescriptorLength());
 
   } // next neighbor
 
-  if (m_params.useNormalization) {
+  if (m_useNormalization) {
     double accNorm = 0;
-    for (int j = 0; j < m_descLength; j++)
+    for (int j = 0; j < getDescriptorLength(); j++)
       accNorm += desc(j) * desc(j);
 
     accNorm = std::sqrt(accNorm);
 
-    for (int j = 0; j < m_descLength; j++)
+    for (int j = 0; j < getDescriptorLength(); j++)
       desc(j) /= accNorm;
   }
 }
@@ -457,26 +457,22 @@ std::vector<std::vector<double > > calc_shot(
 
   mesh.calc_normals();
 
-  unibo::SHOTParams params;
-  params.radius = radius;
-  params.localRFradius = localRFradius;
-  params.minNeighbors = minNeighbors;
-  params.bins = bins;
+  unibo::SHOTComputer computer(radius,
+                               localRFradius,
+                               minNeighbors,
+                               bins,
+                               doubleVolumes,
+                               useInterpolation,
+                               useNormalization);
 
-  params.doubleVolumes = doubleVolumes;
-  params.useInterpolation = useInterpolation;
-  params.useNormalization = useNormalization;
-
-  unibo::SHOTComputer sd(params);
-  const size_t sz = sd.getDescriptorLength();
-
-  std::vector<std::vector<double > > descriptors(nv, std::vector<double>(sz));
+  const size_t lenDescriptor = computer.getDescriptorLength();
+  std::vector<std::vector<double > > descriptors(nv, std::vector<double>(lenDescriptor));
 
   for (int i = 0; i < nv; i++) {
-    unibo::SHOTDescriptor s;
-    sd.describe(mesh, i, s);
-    for (size_t j=0; j < sz; j++) {
-        descriptors[i][j] = (double) s(j);
+    unibo::SHOTDescriptor descriptor;
+    computer.describe(mesh, i, descriptor);
+    for (size_t j=0; j < lenDescriptor; j++) {
+        descriptors[i][j] = (double) descriptor(j);
     }
   }
   return descriptors;
