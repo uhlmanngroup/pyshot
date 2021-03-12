@@ -29,27 +29,28 @@ Please refer to your distribution's package manager.
 ### Usage
 
 Typical snippet:
+
 ```python
 import pyshot
 import numpy as np
 
 ### ...
 
-vertices: np.array = # ... a np.array of shape (n, 3)
-faces: np.array = # ... a np.array of shape (m, 3)
+vertices: np.array =  # ... a np.array of shape (n, 3)
+faces: np.array =  # ... a np.array of shape (m, 3)
 
 # a np.array of shape (n, n_descr)
 shot_descrs: np.array = pyshot.get_descriptors(
-    vertices,
-    faces,
-    radius=100,
-    local_rf_radius=100,
-    # The following parameters are optional
-    min_neighbors=3,
-    n_bins=20,
-    double_volumes=True,
-    use_interpolation=True,
-    use_normalization=True,
+	vertices,
+	faces,
+	radius=100,
+	local_rf_radius=100,
+	# The following parameters are optional
+	min_neighbors=3,
+	n_bins=20,
+	double_volumes_sectors=True,
+	use_interpolation=True,
+	use_normalization=True,
 )
 ```
 

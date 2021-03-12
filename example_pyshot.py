@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--local_rf_radius", type=float, default=None)
     parser.add_argument("--min_neighbors", type=int, default=4)
     parser.add_argument("--n_bins", type=int, default=20)
-    parser.add_argument("--double_volumes", action='store_true')
+    parser.add_argument("--double_volumes_sectors", action='store_true')
     parser.add_argument("--use_interpolation", action='store_true')
     parser.add_argument("--use_normalization", action='store_true')
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
                                          local_rf_radius=local_rf_radius,
                                          min_neighbors=args.min_neighbors,
                                          n_bins=args.n_bins,
-                                         double_volumes=args.double_volumes,
+                                         double_volumes_sectors=args.double_volumes_sectors,
                                          use_interpolation=args.use_interpolation,
                                          use_normalization=args.use_normalization,
                                          )

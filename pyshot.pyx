@@ -27,12 +27,12 @@ cpdef get_descriptors(
         double local_rf_radius,
         int min_neighbors = 3,
         int n_bins = 20,
-        bool double_volumes=True,
+        bool double_volumes_sectors=True,
         bool use_interpolation=True,
         bool use_normalization=True,
 ):
     """
-    Returns the SHOT descriptors of a point cloud 
+    Returns the SHOT descriptors of a mesh point cloud. 
     
     Parameters
     ------------
@@ -41,15 +41,15 @@ cpdef get_descriptors(
     faces : (m, 3)  int
       Array of triangular faces.
     radius: float
-      The radius for querying neighbours.
+      Radius for querying neighbours.
     local_rf_radius: float
-      The radius for the Reference Frame.
+      Radius of the Reference Frame neighbourhood.
     min_neighbors: int
-      The minimum number of neighbours to use. 
+      Minimum number of neighbours to use. 
     n_bins:
       The number of bins for the histogram
-    double_volumes: bool
-      Double the volumes to use for the computations.
+    double_volumes_sectors: bool
+      Double the maximum number of volume angular sectors for descriptor.
     use_interpolation: bool
       Use interpolation during computations.    
     use_normalization: bool
@@ -69,7 +69,7 @@ cpdef get_descriptors(
                       local_rf_radius,
                       min_neighbors,
                       n_bins,
-                      double_volumes,
+                      double_volumes_sectors,
                       use_interpolation,
                       use_normalization)
 
