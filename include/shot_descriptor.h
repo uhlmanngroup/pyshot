@@ -131,63 +131,94 @@ public:
 
 namespace unibo {
 
-class shot : public vec_descriptor<float> {
+class SHOTDescriptor : public vec_descriptor<float> {
   typedef vec_descriptor<float> super;
 
 public:
   typedef super::value_type value_type;
 
-  explicit shot() : super(), radius(0.0f) {}
-  explicit shot(size_t n) : super(n), radius(0.0f) {}
+  explicit SHOTDescriptor() : super(), radius(0.0f) {}
+  explicit SHOTDescriptor(size_t n) : super(n), radius(0.0f) {}
 
   float radius;
 };
 
 struct SHOTParams {
-  float radius; ///< radius of the sphere that defines the local neighborhood
-  float localRFradius; ///< radius of the support to be used for the estimation
-                       ///< of the local RF
-  int bins;            ///< quantization bins for the cosine
+  // Radius of the sphere that defines the local neighborhood
+  float radius;
+
+  // Radius of the support for the estimation of the local RF
+  float localRFradius;
+
+  // Quantization bins for the cosine
+  int bins;
+  int minNeighbors;
+
   bool doubleVolumes;
   bool useInterpolation;
   bool useNormalization;
-  int minNeighbors;
 
-  SHOTParams() // default values
-  {
-    radius = 15;
-    localRFradius = radius;
-    bins = 10;
-    minNeighbors = 10;
-
-    doubleVolumes = true;
-    useInterpolation = true;
-    useNormalization = true;
-  }
+  SHOTParams():
+    radius(15),
+    localRFradius(radius),
+    bins(10),
+    minNeighbors(10),
+    doubleVolumes(true),
+    useInterpolation(true),
+    useNormalization(true)
+  {}
 };
 
-class SHOTDescriptor {
+class SHOTComputer {
 public:
-  explicit SHOTDescriptor(const SHOTParams &params) : m_params(params) {
+  explicit SHOTComputer(const SHOTParams &params) : m_params(params) {
     if (m_params.doubleVolumes)
       m_k = 32;
     else
-      m_k = 16; // number of onion husks
+      m_k = 16;
     m_descLength = m_k * (m_params.bins + 1);
   }
 
-  void describe(mesh_t &data, int feat_index, shot &desc) const;
+  void describe(mesh_t &data, int feat_index, SHOTDescriptor &desc) const;
 
   int getDescriptorLength() const { return m_descLength; }
 
 private:
   SHOTParams m_params;
-  int m_k; // number of onion husks
+  // number of onion husks
+  int m_k;
   int m_descLength;
 
+/**
+ * Compute the local reference frame (RF) for a given point.
+ *
+ * Neighbours and their associated (squared) distances are computed here.
+ *
+ * @param data Mesh data-structure of the point cloud.
+ * @param p Index of the point.
+ * @param radius Radius of the neighbourhood to consider for the RF.
+ * @param X First (non normalised) vector of the reference frame
+ * (modified in place)
+ * @param Y Second (non normalised) vector of the reference frame
+ *  (modified in place)
+ * @param Z Third (non normalised) vector of the reference frame
+ *  (modified in place)
+ */
   void getSHOTLocalRF(mesh_t &data, int p, double radius, vec3d<double> &X,
                       vec3d<double> &Y, vec3d<double> &Z) const;
 
+/**
+ * Compute the local reference frame (RF) for a given point.
+ *
+ * @param data Mesh data-structure of the point cloud.
+ * @param p Index of the point.
+ * @param pts Vector of the neighbours' indices.
+ * @param dists Vector of the squared distances associated to neighbours.
+ * @param radius Radius of the neighbourhood to consider for the RF.
+ * @param X First normalised vector of the reference frame (modified in place)
+ * @param Y Second normalised vector of the reference frame (modified in place)
+ * @param Z Third normalised vector of the reference frame (modified in place)
+ */
   void getSHOTLocalRF(mesh_t &data, int p, const std::vector<int> &pts,
                       const std::vector<double> &dists, double radius,
                       vec3d<double> &X, vec3d<double> &Y,
@@ -196,6 +227,22 @@ private:
 
 } // namespace unibo
 
+/**
+ * Returns the SHOT descriptors of a mesh point cloud.
+ *
+ * @param vertices (n, 3) array of vertex locations.
+ * @param faces (m, 3) array of triangular faces indices.
+ * @param radius Radius for querying neighbours.
+ * @param local_rf_radius Radius of the Reference Frame neighbourhood.
+ * @param min_neighbors The minimum number of neighbours to use.
+ * @param n_bins Number of bins for the histogram
+ * @param double_volumes Double the maximum number of volume angular sectors
+   for descriptor.
+ * @param use_interpolation Use interpolation during computations.
+ * @param use_normalization Normalize during computations.
+ * @return (n, d) array containing the d SHOT descriptors for the n points,
+   where d = 16 * (n_bins + 1) * (double_volumes + 1).
+ */
 std::vector<std::vector<double > >  calc_shot(
                const std::vector<std::vector<double> >& vertices,
                const std::vector<std::vector<int> >& faces,

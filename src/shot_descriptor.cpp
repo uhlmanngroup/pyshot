@@ -25,9 +25,14 @@ inline bool areEquals(double val1, double val2, double zeroDoubleEps = 1e-6) {
   return (std::abs(val1 - val2) < zeroDoubleEps);
 }
 
-void SHOTDescriptor::getSHOTLocalRF(mesh_t &data, int p, double radius,
-                                    vec3d<double> &X, vec3d<double> &Y,
-                                    vec3d<double> &Z) const {
+void SHOTComputer::getSHOTLocalRF(
+    mesh_t &data,
+    int p,
+    double radius,
+    vec3d<double> &X,
+    vec3d<double> &Y,
+    vec3d<double> &Z
+) const {
   vector<int> neighs;
   vector<double> dists;
   data.nearest_neighbors_with_dist(p, radius, neighs, dists);
@@ -35,10 +40,16 @@ void SHOTDescriptor::getSHOTLocalRF(mesh_t &data, int p, double radius,
   getSHOTLocalRF(data, p, neighs, dists, radius, X, Y, Z);
 }
 
-void SHOTDescriptor::getSHOTLocalRF(mesh_t &data, int p, const vector<int> &pts,
-                                    const vector<double> &dists, double radius,
-                                    vec3d<double> &X, vec3d<double> &Y,
-                                    vec3d<double> &Z) const {
+void SHOTComputer::getSHOTLocalRF(
+    mesh_t &data,
+    int p,
+    const vector<int> &pts,
+    const vector<double> &dists,
+    double radius,
+    vec3d<double> &X,
+    vec3d<double> &Y,
+    vec3d<double> &Z
+) const {
 
   const int np = pts.size();
   const vec3d<double> &pt = data.get_vertex(p);
@@ -56,8 +67,6 @@ void SHOTDescriptor::getSHOTLocalRF(mesh_t &data, int p, const vector<int> &pts,
   for (int i = 0; i < np; ++i) {
     const double w = radius - dists[i];
     const vec3d<double> q = data.get_vertex(pts[i]) - pt;
-    // std::cout << "q = " << std::endl;
-    // std::cout << q.x << " " << q.y << " "  << q.z << " " << std::endl;
 
     M(0, 0) += w * q.x * q.x;
 
@@ -89,57 +98,22 @@ void SHOTDescriptor::getSHOTLocalRF(mesh_t &data, int p, const vector<int> &pts,
   M(2, 1) /= sumw;
   M(2, 2) /= sumw;
 
-  // std::cout << "M = " << std::endl;
-  // std::cout << M << std::endl;
-
   // Eigenvalue decomposition
 
-  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> solver(
-      M, Eigen::ComputeEigenvectors);
-  Eigen::VectorXd eval = solver.eigenvalues(); // sorted in increasing order
-  Eigen::Matrix3d evec =
-      solver
-          .eigenvectors(); // eigenvectors are normalized and stored as columns
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> solver(M,
+        Eigen::ComputeEigenvectors);
 
-  // std::cout << "The eigenvalues of A are:" << std::endl << eval << std::endl;
+  // Sorted in increasing order
+  Eigen::VectorXd eval = solver.eigenvalues();
 
-  // Sign disambiguation
-
-  /*
-  int x, y, z; // decreasing eigenvalue order
-  if (eval[0] > eval[1])
-  {
-     if (eval[0] > eval[2])
-     {
-        x = 0;
-        if (eval[1] > eval[2]) { y = 1; z = 2; }
-        else { y = 2; z = 1; }
-     }
-     else { x = 2; y = 0; z = 1; }
-  }
-  else
-  {
-     if (eval[1] > eval[2])
-     {
-        x = 1;
-        if (eval[0] > eval[2]) { y = 0; z = 2; }
-        else { y = 2; z = 0; }
-     }
-     else { x = 2; y = 1; z = 0; }
-  }
-  */
+  // Eigenvectors are normalized and stored as columns
+  Eigen::Matrix3d evec = solver.eigenvectors();
 
   int x = 2, y = 1, z = 0;
 
   if (eval[x] < eval[y] || eval[y] < eval[z])
     throw std::logic_error(
-        "[ERROR] eigenvalues are not decreasing: "); // + ntos(eval[0]) + " " +
-                                                     // ntos(eval[1]) + " " +
-                                                     // ntos(eval[2]));
-
-  // disambiguate x and z
-
-  int posx = 0, posz = 0;
+        "[ERROR] eigenvalues are not decreasing: ");
 
   X.x = evec(0, x);
   X.y = evec(1, x);
@@ -148,12 +122,8 @@ void SHOTDescriptor::getSHOTLocalRF(mesh_t &data, int p, const vector<int> &pts,
   Z.y = evec(1, z);
   Z.z = evec(2, z);
 
-  // std::cout << "norms: " << X.x*X.x + X.y*X.y + X.z*X.z << " " << Z.x*Z.x +
-  // Z.y*Z.y + Z.z*Z.z << ", "; std::cout << "inner: " << X.x*Z.x + X.y*Z.y +
-  // X.z*Z.z << std::endl;
-
-  // normalize(X);
-  // normalize(Z);
+  // Disambiguate x and z
+  int posx = 0, posz = 0;
 
   for (int i = 0; i < np; ++i) {
     const vec3d<double> q = data.get_vertex(pts[i]) - pt;
@@ -171,10 +141,11 @@ void SHOTDescriptor::getSHOTLocalRF(mesh_t &data, int p, const vector<int> &pts,
   Y = cross_product(Z, X);
 }
 
-/**
- *
- */
-void SHOTDescriptor::describe(mesh_t &data, int feat_index, shot &desc) const {
+void SHOTComputer::describe(
+    mesh_t &data,
+    int feat_index,
+    SHOTDescriptor &desc)
+const {
   desc.radius = m_params.radius;
 
   desc.resize(m_descLength, 0);
@@ -219,7 +190,6 @@ void SHOTDescriptor::describe(mesh_t &data, int feat_index, shot &desc) const {
   }
 
   const int n_neighs = neighs.size();
-  // std::cout << n_neighs << " neighbors" << std::endl;
 
   if (n_neighs < m_params.minNeighbors) {
     std::cout << "[WARNING] Neighborhood has less than "
@@ -316,7 +286,7 @@ void SHOTDescriptor::describe(mesh_t &data, int feat_index, shot &desc) const {
 
       // Interpolation on the distance (adjacent husks)
 
-      /*FIXME: crashes when desc_index is 0 or 1 (idx becomes < 0)*/
+      // FIXME: crashes when desc_index is 0 or 1 (idx becomes < 0)
       if (sqrtSqDistance > radius1_2) {
         double radiusDistance = (sqrtSqDistance - radius3_4) / radius1_2;
 
@@ -458,7 +428,7 @@ void SHOTDescriptor::describe(mesh_t &data, int feat_index, shot &desc) const {
 
 } // namespace unibo
 
-std::vector<std::vector<double > >  calc_shot(
+std::vector<std::vector<double > > calc_shot(
                const std::vector<std::vector<double> >& vertices,
                const std::vector<std::vector<int> >& faces,
                double radius,
@@ -497,13 +467,13 @@ std::vector<std::vector<double > >  calc_shot(
   params.useInterpolation = useInterpolation;
   params.useNormalization = useNormalization;
 
-  unibo::SHOTDescriptor sd(params);
+  unibo::SHOTComputer sd(params);
   const size_t sz = sd.getDescriptorLength();
 
   std::vector<std::vector<double > > descriptors(nv, std::vector<double>(sz));
 
   for (int i = 0; i < nv; i++) {
-    unibo::shot s;
+    unibo::SHOTDescriptor s;
     sd.describe(mesh, i, s);
     for (size_t j=0; j < sz; j++) {
         descriptors[i][j] = (double) s(j);
