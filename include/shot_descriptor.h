@@ -148,8 +148,8 @@ public:
   explicit SHOTComputer(
     float radius = 15,
     float localRFradius = 15,
-    float bins = 10,
     int minNeighbors = 10,
+    float bins = 10,
     double doubleVolumes=true,
     double useInterpolation=true,
     double useNormalization=true
@@ -230,15 +230,15 @@ private:
  * @param vertices (n, 3) array of vertex locations.
  * @param faces (m, 3) array of triangular faces indices.
  * @param radius Radius for querying neighbours.
- * @param local_rf_radius Radius of the Reference Frame neighbourhood.
- * @param min_neighbors The minimum number of neighbours to use.
- * @param n_bins Number of bins for the histogram
+ * @param localRFradius Radius of the Reference Frame neighbourhood.
+ * @param minNeighbors The minimum number of neighbours to use.
+ * @param bins Number of bins for the histogram
  * @param double_volumes Double the maximum number of volume angular sectors
    for descriptor.
  * @param use_interpolation Use interpolation during computations.
  * @param use_normalization Normalize during computations.
  * @return (n, d) array containing the d SHOT descriptors for the n points,
-   where d = 16 * (n_bins + 1) * (double_volumes + 1).
+   where d = 16 * (bins + 1) * (double_volumes + 1).
  */
 std::vector<std::vector<double > >  calc_shot(
                const std::vector<std::vector<double> >& vertices,
