@@ -27,7 +27,7 @@ setup(
     name="pyshot",
     author="Julien Jerphanion",
     author_email="git@jjerphan.xyz",
-    version='1.1',
+    version='1.2',
     cmdclass={'build_ext': build_ext},
     ext_modules=extensions,
     install_requires=[
