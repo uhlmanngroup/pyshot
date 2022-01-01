@@ -8,13 +8,13 @@ from libcpp cimport bool
 
 cdef extern from "include/shot_descriptor.h":
 
-    vector[vector[double]]  calc_shot(
+    vector[vector[double]] calc_shot(
                    const vector[vector[double]] vertices,
                    const vector[vector[int]] faces,
                    double radius,
-                   double localRFradius,
-                   int minNeighbors,
-                   int bins,
+                   double local_rf_radius,
+                   int min_neighbors,
+                   int n_bins,
                    bool double_volumes,
                    bool use_interpolation,
                    bool use_normalization,
@@ -59,8 +59,7 @@ cpdef get_descriptors(
     ----------
     descr: (n, d) float
       Array containing the d SHOT descriptors for the n points,
-      where d = 16 * (n_bins + 1) * (double_volumes + 1).
-
+      where d = 16 * (n_bins + 1) * (double_volumes_sectors + 1).
     """
 
     descr = calc_shot(vertices,
